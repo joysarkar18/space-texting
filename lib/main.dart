@@ -133,28 +133,45 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (currentCall != null) {
       print("Current Call ${currentCall}");
       if (currentCall["accepted"]) {
-        await FirebaseFirestore.instance
-            .collection("rooms")
-            .doc(currentCall["extra"]["callId"])
-            .get()
-            .then((value) {
-          if (value.exists && !value.data()!["hangUped"]) {
-            if (currentCall["extra"]["callType"] == "video") {
-              Get.toNamed(Routes.VIDEO_CALL, arguments: {
-                "callId": currentCall["extra"]["callId"],
-                'isCaller': false,
-                "receiverId": currentCall["extra"]["receiverId"]
-              });
-            } else if (currentCall["extra"]["callType"] == "audio") {
-              Get.toNamed(Routes.VOICE_CALL, arguments: {
-                "receiverId": currentCall["extra"]["receiverId"],
-                'isCaller': false,
-                'name': currentCall["extra"]["name"],
-                'profileImage': "",
-              });
+        if (currentCall["extra"]["callType"] == "video") {
+          await FirebaseFirestore.instance
+              .collection("rooms")
+              .doc(currentCall["extra"]["callId"])
+              .get()
+              .then((value) {
+            if (value.exists && !value.data()!["hangUped"]) {
+              if (currentCall["extra"]["callType"] == "video") {
+                Get.toNamed(Routes.VIDEO_CALL, arguments: {
+                  "callId": currentCall["extra"]["callId"],
+                  'isCaller': false,
+                  "receiverId": currentCall["extra"]["receiverId"]
+                });
+              }
+            } else {
+              print("Hanged uped");
             }
-          }
-        });
+          });
+        } else if (currentCall["extra"]["callType"] == "audio") {
+          await FirebaseFirestore.instance
+              .collection("voiceRooms")
+              .doc(currentCall["extra"]["callId"])
+              .get()
+              .then((value) {
+            if (value.exists && !value.data()!["hangUped"]) {
+              if (currentCall["extra"]["callType"] == "audio") {
+                Get.toNamed(Routes.VOICE_CALL, arguments: {
+                  "receiverId": currentCall["extra"]["receiverId"],
+                  'isCaller': false,
+                  'name': currentCall["extra"]["name"],
+                  'profileImage': "",
+                  "callId": currentCall["extra"]["callId"],
+                });
+              }
+            } else {
+              print("Hanged uped");
+            }
+          });
+        }
       }
     }
   }

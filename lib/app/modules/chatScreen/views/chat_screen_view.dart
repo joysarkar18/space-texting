@@ -106,7 +106,7 @@ class ChatCard extends StatelessWidget {
                   value.data()!["membership"] != null &&
                   isWithinLastTwoMonths(value.data()!["membership"])) {
                 Get.to(ChatView(
-                    name: "${user.name.isEmpty ? user.phoneNumber : user.name}",
+                    name: user.name.isEmpty ? user.phoneNumber : user.name,
                     profileImage: user.profilePic,
                     targetUserId: user.uid,
                     userId: FirebaseAuth.instance.currentUser!.uid));
